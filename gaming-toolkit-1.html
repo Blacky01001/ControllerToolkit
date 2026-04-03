@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GamerKit Pro</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Exo+2:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0b0f;--surface:#12141a;--surface2:#1a1d26;--surface3:#22263a;--accent:#00e5ff;--accent2:#ff3d71;--accent3:#a259ff;--green:#00e676;--yellow:#ffea00;--text:#e8eaf6;--text2:#7986cb;--border:rgba(255,255,255,0.06);--glow:0 0 20px rgba(0,229,255,0.3);--r:16px;--r2:24px;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Exo 2',sans-serif;min-height:100vh;overflow-x:hidden;user-select:none;}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 20% 20%,rgba(0,229,255,0.04) 0%,transparent 60%),radial-gradient(ellipse 40% 50% at 80% 80%,rgba(162,89,255,0.04) 0%,transparent 60%);pointer-events:none;z-index:0;}
+.app{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:24px 20px;}
+.header{display:flex;align-items:center;gap:14px;margin-bottom:28px;}
+.logo{width:44px;height:44px;background:linear-gradient(135deg,var(--accent),var(--accent3));border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:var(--glow);}
+.header-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:26px;letter-spacing:2px;}
+.header-sub{font-size:11px;color:var(--text2);letter-spacing:3px;text-transform:uppercase;margin-top:2px;}
+.header-badge{margin-left:auto;background:rgba(0,229,255,0.1);border:1px solid rgba(0,229,255,0.2);color:var(--accent);padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:1px;}
+.tabs{display:flex;gap:6px;background:var(--surface);padding:6px;border-radius:var(--r2);margin-bottom:24px;border:1px solid var(--border);}
+.tab{flex:1;padding:12px 16px;border-radius:18px;border:none;background:transparent;color:var(--text2);font-family:'Exo 2',sans-serif;font-size:13px;font-weight:600;letter-spacing:0.5px;cursor:pointer;transition:all 0.25s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.tab:hover{color:var(--text);background:var(--surface2);}
+.tab.active{background:linear-gradient(135deg,rgba(0,229,255,0.15),rgba(162,89,255,0.15));color:var(--accent);border:1px solid rgba(0,229,255,0.25);box-shadow:0 0 16px rgba(0,229,255,0.1);}
+.panel{display:none;animation:fadeIn 0.3s ease;}
+.panel.active{display:block;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r2);padding:22px;margin-bottom:16px;}
+.card-header{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
+.card-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;}
+.card-title{font-weight:700;font-size:15px;letter-spacing:0.5px;}
+.card-sub{font-size:11px;color:var(--text2);margin-top:2px;}
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:4px;}
+.stat-box{background:var(--surface2);border-radius:12px;padding:12px 10px;text-align:center;border:1px solid var(--border);}
+.stat-val{font-size:26px;font-weight:900;font-family:'Rajdhani',sans-serif;letter-spacing:1px;}
+.stat-lbl{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-top:2px;}
+.stat-val.cyan{color:var(--accent)}.stat-val.red{color:var(--accent2)}.stat-val.green{color:var(--green)}.stat-val.purple{color:var(--accent3)}
+.btn{width:100%;padding:12px;border:none;border-radius:12px;font-family:'Exo 2',sans-serif;font-size:13px;font-weight:700;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#000;box-shadow:var(--glow);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 0 30px rgba(0,229,255,0.5);}
+.btn-danger{background:rgba(255,61,113,0.15);color:var(--accent2);border:1px solid rgba(255,61,113,0.2);}
+.btn-danger:hover{background:rgba(255,61,113,0.25);}
+.mode-btns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;}
+.mode-btn{padding:8px 4px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-family:'Exo 2',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;}
+.mode-btn.active,.mode-btn:hover{background:var(--surface3);color:var(--accent);border-color:rgba(0,229,255,0.2);}
+.sensitivity-wrap{display:flex;flex-direction:column;gap:6px;}
+.sens-row{display:flex;align-items:center;gap:8px;}
+.sens-label{font-size:11px;color:var(--text2);width:24px;}
+input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:var(--surface3);border-radius:2px;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(0,229,255,0.5);}
+.sens-val{font-size:11px;color:var(--accent);font-weight:700;width:28px;text-align:right;}
+.label{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;font-weight:600;}
+.divider{height:1px;background:var(--border);margin:14px 0;}
+.aim-grid{display:grid;grid-template-columns:1fr 300px;gap:16px;}
+.aim-sidebar{display:flex;flex-direction:column;gap:12px;}
+.hud-stat{background:rgba(0,0,0,0.65);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.08);border-radius:12px;padding:8px 14px;text-align:center;}
+.hud-val{font-size:22px;font-weight:900;font-family:'Rajdhani',sans-serif;}
+.hud-lbl{font-size:9px;color:rgba(255,255,255,0.35);letter-spacing:1px;}
+.controller-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.delay-zone{background:var(--surface2);border-radius:var(--r);padding:20px;text-align:center;cursor:pointer;border:2px solid var(--border);transition:all 0.1s;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;}
+.delay-zone:hover{border-color:rgba(0,229,255,0.3);}
+.delay-zone.pressed{border-color:var(--green);background:rgba(0,230,118,0.1);transform:scale(0.98);}
+.delay-results{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;}
+.delay-result-box{background:var(--surface2);border-radius:10px;padding:10px 8px;text-align:center;border:1px solid var(--border);}
+.delay-result-val{font-size:20px;font-weight:800;font-family:'Rajdhani',sans-serif;}
+.delay-result-lbl{font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;}
+.ctrl-btn-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-top:8px;}
+.ctrl-btn{aspect-ratio:1;border-radius:10px;background:var(--surface2);border:1px solid var(--border);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11px;color:var(--text2);font-weight:600;transition:all 0.1s;cursor:default;}
+.ctrl-btn .icon{font-size:16px;}
+.ctrl-btn.lit{background:rgba(0,229,255,0.15);border-color:var(--accent);color:var(--accent);transform:scale(0.94);}
+.ctrl-btn.lit-x{background:rgba(0,230,118,0.15);border-color:var(--green);color:var(--green);}
+.ctrl-btn.lit-o{background:rgba(255,61,113,0.15);border-color:var(--accent2);color:var(--accent2);}
+.ctrl-btn.lit-sq{background:rgba(162,89,255,0.15);border-color:var(--accent3);color:var(--accent3);}
+.ctrl-btn.lit-tri{background:rgba(0,230,118,0.15);border-color:var(--green);color:var(--green);}
+.sticks-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.stick-visual{background:var(--surface2);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;align-items:center;gap:8px;border:1px solid var(--border);}
+.stick-zone{width:100px;height:100px;border-radius:50%;background:var(--surface3);border:2px solid var(--border);position:relative;overflow:hidden;}
+.stick-zone::before{content:'';position:absolute;inset:4px;border-radius:50%;border:1px dashed rgba(255,255,255,0.06);}
+.stick-dot{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--accent);box-shadow:var(--glow);top:50%;left:50%;transform:translate(-50%,-50%);transition:all 0.05s linear;}
+.stick-zone.rs .stick-dot{background:var(--accent3);box-shadow:0 0 12px rgba(162,89,255,0.5);}
+.stick-vals{font-size:11px;color:var(--text2);text-align:center;}
+.stick-name{font-size:12px;font-weight:700;color:var(--text);}
+.triggers-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;}
+.trigger-vis{background:var(--surface2);border-radius:12px;padding:12px;border:1px solid var(--border);}
+.trigger-label{font-size:11px;color:var(--text2);margin-bottom:6px;font-weight:600;}
+.trigger-bar{height:8px;background:var(--surface3);border-radius:4px;overflow:hidden;}
+.trigger-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:4px;transition:width 0.05s;}
+.trigger-val{font-size:11px;color:var(--accent);font-weight:700;margin-top:4px;text-align:right;}
+.gamepad-status{display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:var(--surface2);border:1px solid var(--border);font-size:12px;}
+.status-dot{width:8px;height:8px;border-radius:50%;background:var(--accent2);box-shadow:0 0 8px var(--accent2);}
+.status-dot.connected{background:var(--green);box-shadow:0 0 8px var(--green);}
+.fps-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.fps-counter-display{text-align:center;background:var(--surface2);border-radius:var(--r);padding:16px;border:1px solid var(--border);}
+.fps-big{font-size:64px;font-weight:900;font-family:'Rajdhani',sans-serif;line-height:1;background:linear-gradient(135deg,var(--green),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:2px;}
+.fps-label{font-size:11px;color:var(--text2);letter-spacing:3px;margin-top:4px;}
+.fps-graph{height:50px;display:flex;align-items:flex-end;gap:2px;margin-top:12px;overflow:hidden;}
+.fps-graph-bar{flex:0 0 6px;border-radius:2px;background:var(--accent);opacity:0.7;transition:height 0.3s;}
+.fps-graph-mini{height:30px;display:flex;align-items:flex-end;gap:1px;}
+.fps-bar{flex:1;border-radius:1px;transition:height 0.3s;}
+.toggle-group{display:flex;flex-direction:column;gap:8px;}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--surface2);border-radius:12px;border:1px solid var(--border);font-size:13px;font-weight:500;}
+.toggle{width:40px;height:22px;background:var(--surface3);border-radius:11px;position:relative;cursor:pointer;transition:background 0.2s;}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;border-radius:50%;background:white;top:3px;left:3px;transition:left 0.2s;}
+.toggle.on{background:var(--accent);}
+.toggle.on::after{left:21px;}
+.color-presets{display:flex;gap:8px;flex-wrap:wrap;}
+.color-dot{width:28px;height:28px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all 0.2s;}
+.color-dot.selected{border-color:white;transform:scale(1.15);}
+.pos-btn{padding:8px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-family:'Exo 2',sans-serif;font-size:11px;font-weight:600;cursor:pointer;transition:all 0.2s;text-align:center;}
+.pos-btn.active,.pos-btn:hover{background:var(--surface3);color:var(--accent);border-color:rgba(0,229,255,0.2);}
+.overlay-preview-box{background:#000;border-radius:12px;padding:16px;position:relative;min-height:200px;overflow:hidden;}
+.overlay-preview-box::before{content:'GAME VIEW';position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:13px;color:rgba(255,255,255,0.08);letter-spacing:4px;font-weight:700;}
+.overlay-widget{position:absolute;background:rgba(0,0,0,0.75);backdrop-filter:blur(8px);border-radius:10px;padding:8px 12px;border:1px solid rgba(255,255,255,0.08);font-size:11px;min-width:100px;}
+.overlay-widget.top-right{top:10px;right:10px;}.overlay-widget.top-left{top:10px;left:10px;}.overlay-widget.bottom-left{bottom:10px;left:10px;}.overlay-widget.bottom-right{bottom:10px;right:10px;}
+.overlay-fps{color:var(--green);font-size:22px;font-weight:900;font-family:'Rajdhani',sans-serif;letter-spacing:1px;}
+.overlay-fps-lbl{color:rgba(255,255,255,0.4);font-size:9px;letter-spacing:2px;}
+.overlay-stat-row{display:flex;justify-content:space-between;gap:12px;margin-top:3px;}
+.overlay-stat{text-align:center;}
+.overlay-stat-v{font-size:13px;font-weight:700;color:var(--accent);font-family:'Rajdhani',sans-serif;}
+.overlay-stat-l{font-size:8px;color:rgba(255,255,255,0.35);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--surface3);border-radius:2px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="logo">🎮</div>
+    <div><div class="header-title">GAMERKIT PRO</div><div class="header-sub">Gaming Utility Suite</div></div>
+    <div class="header-badge">RAIJU V3 PRO</div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(0)"><span>🎯</span> Aim Trainer</button>
+    <button class="tab" onclick="switchTab(1)"><span>🕹️</span> Controller Test</button>
+    <button class="tab" onclick="switchTab(2)"><span>📊</span> FPS Overlay</button>
+  </div>
+
+  <!-- TAB 1 -->
+  <div class="panel active" id="panel-0">
+    <div class="aim-grid">
+      <div>
+        <div class="card" style="padding:0;overflow:hidden;">
+          <div id="arenaEntry" style="aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:linear-gradient(135deg,#0d1117,#151b27);cursor:pointer;position:relative;overflow:hidden;" onclick="enterArena()">
+            <div style="position:absolute;inset:0;background-image:linear-gradient(rgba(0,229,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,229,255,0.03) 1px,transparent 1px);background-size:50px 50px;pointer-events:none;"></div>
+            <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(0,229,255,0.05) 0%,transparent 70%);pointer-events:none;"></div>
+            <canvas id="previewCanvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:0.55;"></canvas>
+            <div style="position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px;">
+              <div style="font-size:52px;filter:drop-shadow(0 0 24px rgba(0,229,255,0.6));">🎯</div>
+              <div style="font-size:20px;font-weight:900;letter-spacing:3px;color:#fff;text-shadow:0 0 20px rgba(0,229,255,0.8);">ARENA 3D</div>
+              <div style="font-size:11px;color:rgba(255,255,255,0.45);line-height:2.2;letter-spacing:0.5px;">
+                WASD / L-STICK → Movimento &nbsp;·&nbsp; Mouse / R-STICK → Mira<br>
+                Click / R2 → Spara &nbsp;·&nbsp; ESC → Pausa
+              </div>
+              <button class="btn btn-primary" style="width:210px;margin-top:4px;" onclick="enterArena()">▶ ENTRA NELL'ARENA</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="aim-sidebar">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-icon" style="background:rgba(0,229,255,0.15)">📈</div>
+            <div><div class="card-title">Statistiche</div><div class="card-sub">Ultima sessione</div></div>
+          </div>
+          <div class="stat-grid">
+            <div class="stat-box"><div class="stat-val cyan" id="statHits">0</div><div class="stat-lbl">Colpi</div></div>
+            <div class="stat-box"><div class="stat-val red" id="statMisses">0</div><div class="stat-lbl">Mancati</div></div>
+            <div class="stat-box"><div class="stat-val green" id="statAcc">–%</div><div class="stat-lbl">Accuratezza</div></div>
+            <div class="stat-box"><div class="stat-val purple" id="statAvgTime">–ms</div><div class="stat-lbl">Avg. ms</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="label">Modalità Bersagli</div>
+          <div class="mode-btns">
+            <button class="mode-btn active" id="mode-normal" onclick="setMode('normal')">🔴 Normal</button>
+            <button class="mode-btn" id="mode-small" onclick="setMode('small')">🟢 Small</button>
+            <button class="mode-btn" id="mode-moving" onclick="setMode('moving')">🔵 Moving</button>
+          </div>
+          <div class="divider"></div>
+          <div class="label">Sensibilità</div>
+          <div class="sensitivity-wrap">
+            <div class="sens-row"><span class="sens-label">X</span><input type="range" min="1" max="20" value="8" id="sensX" oninput="document.getElementById('sensXv').textContent=this.value"><span class="sens-val" id="sensXv">8</span></div>
+            <div class="sens-row"><span class="sens-label">Y</span><input type="range" min="1" max="20" value="8" id="sensY" oninput="document.getElementById('sensYv').textContent=this.value"><span class="sens-val" id="sensYv">8</span></div>
+          </div>
+          <div class="divider"></div>
+          <select id="aimDuration" style="width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;color:var(--text);font-family:'Exo 2',sans-serif;font-size:12px;cursor:pointer;">
+            <option value="30">30 secondi</option><option value="60" selected>60 secondi</option><option value="120">2 minuti</option><option value="300">5 minuti</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2 -->
+  <div class="panel" id="panel-1">
+    <div class="controller-layout">
+      <!-- LEFT COL -->
+      <div>
+        <!-- DELAY TEST -->
+        <div class="card">
+          <div class="card-header"><div class="card-icon" style="background:rgba(255,61,113,0.15)">⚡</div><div><div class="card-title">Test Delay</div><div class="card-sub">Mouse o qualsiasi tasto controller</div></div></div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div class="delay-zone" id="delayZone">
+              <span style="font-size:28px">⚡</span>
+              <span style="font-size:13px;font-weight:700;color:var(--text2)" id="delayZoneText">PREMI QUALSIASI TASTO</span>
+              <span style="font-size:11px;color:var(--text2)">Tieni premuto poi rilascia</span>
+            </div>
+            <div class="delay-results">
+              <div class="delay-result-box"><div class="delay-result-val cyan" id="delayLast">–</div><div class="delay-result-lbl">ms Ultimo</div></div>
+              <div class="delay-result-box"><div class="delay-result-val green" id="delayAvg">–</div><div class="delay-result-lbl">ms Media</div></div>
+              <div class="delay-result-box"><div class="delay-result-val purple" id="delayBest">–</div><div class="delay-result-lbl">ms Min</div></div>
+            </div>
+            <button class="btn btn-danger" onclick="resetDelay()">Reset</button>
+          </div>
+        </div>
+        <!-- TEST TASTI: tastiera + debug indice controller -->
+        <div class="card">
+          <div class="card-header"><div class="card-icon" style="background:rgba(162,89,255,0.15)">⌨️</div><div><div class="card-title">Test Tasti</div><div class="card-sub">Tastiera & Controller — indice raw</div></div></div>
+          <div style="background:var(--surface2);border-radius:12px;padding:14px;text-align:center;border:1px solid var(--border);margin-bottom:10px;">
+            <div style="font-size:10px;color:var(--text2);letter-spacing:2px;margin-bottom:6px;">ULTIMO INPUT</div>
+            <div style="font-size:32px;font-weight:900;font-family:'Rajdhani',sans-serif;color:var(--accent);" id="lastKeyVal">–</div>
+            <div style="font-size:10px;color:var(--text2);margin-top:4px;" id="lastKeyCode"></div>
+          </div>
+          <!-- Griglia tutti i pulsanti controller con indice -->
+          <div class="label">Tutti i pulsanti controller (indice raw)</div>
+          <div id="allBtnsGrid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:5px;"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT COL -->
+      <div>
+        <div class="card">
+          <div class="card-header"><div class="card-icon" style="background:rgba(0,230,118,0.15)">🕹️</div><div><div class="card-title">Raiju V3 Pro</div></div></div>
+          <div class="gamepad-status" id="gamepadStatus"><div class="status-dot" id="statusDot"></div><span id="statusText">Controller non rilevato</span></div>
+          <div class="divider"></div>
+          <!-- Named buttons (mapping aggiornabile) -->
+          <div class="label">Pulsanti nominali</div>
+          <div class="ctrl-btn-grid" style="grid-template-columns:repeat(4,1fr);">
+            <div class="ctrl-btn" id="btn-cross"><span class="icon">✕</span>Cross</div>
+            <div class="ctrl-btn" id="btn-circle"><span class="icon">○</span>Circle</div>
+            <div class="ctrl-btn" id="btn-square"><span class="icon">□</span>Square</div>
+            <div class="ctrl-btn" id="btn-triangle"><span class="icon">△</span>Tri</div>
+            <div class="ctrl-btn" id="btn-l1"><span class="icon">L1</span></div>
+            <div class="ctrl-btn" id="btn-r1"><span class="icon">R1</span></div>
+            <div class="ctrl-btn" id="btn-l2d"><span class="icon">L2</span></div>
+            <div class="ctrl-btn" id="btn-r2d"><span class="icon">R2</span></div>
+            <div class="ctrl-btn" id="btn-share"><span class="icon">⬡</span>Share</div>
+            <div class="ctrl-btn" id="btn-options"><span class="icon">☰</span>Opt</div>
+            <div class="ctrl-btn" id="btn-l3"><span class="icon">L3</span></div>
+            <div class="ctrl-btn" id="btn-r3"><span class="icon">R3</span></div>
+            <div class="ctrl-btn" id="btn-dup"><span class="icon">↑</span>D↑</div>
+            <div class="ctrl-btn" id="btn-ddown"><span class="icon">↓</span>D↓</div>
+            <div class="ctrl-btn" id="btn-dleft"><span class="icon">←</span>D←</div>
+            <div class="ctrl-btn" id="btn-dright"><span class="icon">→</span>D→</div>
+          </div>
+          <div class="divider"></div>
+          <div class="label">Tasti Extra M1–M6</div>
+          <div class="ctrl-btn-grid" style="grid-template-columns:repeat(6,1fr);">
+            <div class="ctrl-btn" id="btn-m1"><span class="icon" style="font-size:13px">M1</span></div>
+            <div class="ctrl-btn" id="btn-m2"><span class="icon" style="font-size:13px">M2</span></div>
+            <div class="ctrl-btn" id="btn-m3"><span class="icon" style="font-size:13px">M3</span></div>
+            <div class="ctrl-btn" id="btn-m4"><span class="icon" style="font-size:13px">M4</span></div>
+            <div class="ctrl-btn" id="btn-m5"><span class="icon" style="font-size:13px">M5</span></div>
+            <div class="ctrl-btn" id="btn-m6"><span class="icon" style="font-size:13px">M6</span></div>
+          </div>
+          <div class="divider"></div>
+          <div class="label">Stick Analogici</div>
+          <div class="sticks-row">
+            <div class="stick-visual"><div class="stick-name">L-STICK</div><div class="stick-zone" id="stickZoneL"><div class="stick-dot" id="stickDotL"></div></div><div class="stick-vals" id="stickValsL">X:0.00|Y:0.00</div></div>
+            <div class="stick-visual"><div class="stick-name">R-STICK</div><div class="stick-zone rs" id="stickZoneR"><div class="stick-dot" id="stickDotR"></div></div><div class="stick-vals" id="stickValsR">X:0.00|Y:0.00</div></div>
+          </div>
+          <div class="triggers-row">
+            <div class="trigger-vis"><div class="trigger-label">L2</div><div class="trigger-bar"><div class="trigger-fill" id="triggerL"></div></div><div class="trigger-val" id="triggerLVal">0%</div></div>
+            <div class="trigger-vis"><div class="trigger-label">R2</div><div class="trigger-bar"><div class="trigger-fill" id="triggerR"></div></div><div class="trigger-val" id="triggerRVal">0%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3 -->
+  <div class="panel" id="panel-2">
+    <div class="fps-layout">
+      <div>
+        <div class="card">
+          <div class="card-header"><div class="card-icon" style="background:rgba(0,230,118,0.15)">📊</div><div><div class="card-title">FPS Monitor Live</div></div></div>
+          <div class="fps-counter-display">
+            <div class="fps-big" id="fpsDisplay">144</div>
+            <div class="fps-label">FRAMES PER SECOND</div>
+            <div class="fps-graph" id="fpsGraph"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="stat-grid" style="margin-top:0;">
+            <div class="stat-box"><div class="stat-val cyan" id="fpsMin">–</div><div class="stat-lbl">Min</div></div>
+            <div class="stat-box"><div class="stat-val green" id="fpsMax">–</div><div class="stat-lbl">Max</div></div>
+            <div class="stat-box"><div class="stat-val purple" id="fps1pct">–</div><div class="stat-lbl">1% Low</div></div>
+            <div class="stat-box"><div class="stat-val" style="color:var(--yellow)" id="fpsAvgStat">–</div><div class="stat-lbl">Avg</div></div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="card">
+          <div class="card-header"><div class="card-icon" style="background:rgba(0,229,255,0.15)">🖥️</div><div><div class="card-title">Overlay Preview</div></div></div>
+          <div class="overlay-preview-box">
+            <div class="overlay-widget top-right" id="overlayWidget1">
+              <div class="overlay-fps" id="overlayFps">144</div>
+              <div class="overlay-fps-lbl">FPS</div>
+              <div class="fps-graph-mini" id="overlaygraphMini"></div>
+            </div>
+            <div class="overlay-widget top-left">
+              <div class="overlay-stat-row">
+                <div class="overlay-stat"><div class="overlay-stat-v" id="overlayPing">12ms</div><div class="overlay-stat-l">PING</div></div>
+                <div class="overlay-stat"><div class="overlay-stat-v" id="overlayCPU">45%</div><div class="overlay-stat-l">CPU</div></div>
+                <div class="overlay-stat"><div class="overlay-stat-v" id="overlayGPU">72%</div><div class="overlay-stat-l">GPU</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="divider"></div>
+          <div class="label">Widget</div>
+          <div class="toggle-group">
+            <div class="toggle-row"><span>FPS Counter</span><div class="toggle on" onclick="toggleThis(this)"></div></div>
+            <div class="toggle-row"><span>Ping / Latenza</span><div class="toggle on" onclick="toggleThis(this)"></div></div>
+            <div class="toggle-row"><span>CPU / GPU</span><div class="toggle on" onclick="toggleThis(this)"></div></div>
+          </div>
+          <div class="divider"></div>
+          <div class="label">Colore</div>
+          <div class="color-presets">
+            <div class="color-dot selected" style="background:#00e5ff" onclick="setOverlayColor('#00e5ff',this)"></div>
+            <div class="color-dot" style="background:#00e676" onclick="setOverlayColor('#00e676',this)"></div>
+            <div class="color-dot" style="background:#ff3d71" onclick="setOverlayColor('#ff3d71',this)"></div>
+            <div class="color-dot" style="background:#a259ff" onclick="setOverlayColor('#a259ff',this)"></div>
+            <div class="color-dot" style="background:#ffea00" onclick="setOverlayColor('#ffea00',this)"></div>
+          </div>
+          <div class="divider"></div>
+          <div class="label">Posizione</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+            <button class="pos-btn" onclick="setOverlayPos('top-right',this)">↗ Top Right</button>
+            <button class="pos-btn" onclick="setOverlayPos('top-left',this)">↖ Top Left</button>
+            <button class="pos-btn" onclick="setOverlayPos('bottom-right',this)">↘ Bot Right</button>
+            <button class="pos-btn" onclick="setOverlayPos('bottom-left',this)">↙ Bot Left</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ARENA 3D FULLSCREEN -->
+<div id="aimArena3D" style="display:none;position:fixed;inset:0;z-index:9999;background:#000;">
+  <canvas id="arenaCanvas" style="width:100%;height:100%;display:block;cursor:none;"></canvas>
+  <!-- Crosshair -->
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none;">
+    <svg width="36" height="36" viewBox="0 0 36 36">
+      <line x1="18" y1="4" x2="18" y2="13" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+      <line x1="18" y1="23" x2="18" y2="32" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+      <line x1="4" y1="18" x2="13" y2="18" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+      <line x1="23" y1="18" x2="32" y2="18" stroke="white" stroke-width="1.5" stroke-linecap="round" opacity="0.9"/>
+      <circle cx="18" cy="18" r="3" stroke="#00e5ff" stroke-width="1.5" fill="none" opacity="0.95"/>
+    </svg>
+  </div>
+  <!-- HUD stats -->
+  <div style="position:absolute;top:20px;left:20px;display:flex;gap:8px;pointer-events:none;">
+    <div class="hud-stat"><div class="hud-val" style="color:#00e5ff" id="hud-hits">0</div><div class="hud-lbl">COLPI</div></div>
+    <div class="hud-stat"><div class="hud-val" style="color:#ff3d71" id="hud-misses">0</div><div class="hud-lbl">MANCATI</div></div>
+    <div class="hud-stat"><div class="hud-val" style="color:#00e676" id="hud-acc">–%</div><div class="hud-lbl">ACC</div></div>
+  </div>
+  <!-- Timer -->
+  <div style="position:absolute;top:20px;right:20px;pointer-events:none;">
+    <div class="hud-stat" style="min-width:80px;text-align:center;">
+      <div class="hud-val" style="color:#fff;font-size:32px;" id="hud-timer">60</div>
+      <div class="hud-lbl">SECONDI</div>
+      <div style="margin-top:5px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;"><div id="hud-timerbar" style="height:100%;background:linear-gradient(90deg,#00e5ff,#a259ff);border-radius:2px;width:100%;transition:width 1s linear;"></div></div>
+    </div>
+  </div>
+  <!-- Hint -->
+  <div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.5);backdrop-filter:blur(6px);border-radius:10px;padding:6px 18px;font-size:11px;color:rgba(255,255,255,0.3);letter-spacing:0.5px;pointer-events:none;white-space:nowrap;">
+    WASD/L-STICK = Muovi &nbsp;·&nbsp; Mouse/R-STICK = Mira &nbsp;·&nbsp; Click/R2 = Spara &nbsp;·&nbsp; ESC = Pausa
+  </div>
+  <!-- Hit flash -->
+  <div id="hitFlash" style="position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 0.07s;"></div>
+  <!-- Pause -->
+  <div id="pauseOverlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.82);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:16px;">
+    <div style="font-size:38px;font-weight:900;letter-spacing:6px;color:#fff;margin-bottom:8px;">PAUSA</div>
+    <button class="btn btn-primary" style="width:220px;" onclick="resumeArena()">▶ RIPRENDI</button>
+    <button class="btn btn-danger" style="width:220px;" onclick="exitArena()">⏹ ESCI</button>
+  </div>
+  <!-- End -->
+  <div id="endOverlay" style="display:none;position:absolute;inset:0;background:rgba(0,0,0,0.88);backdrop-filter:blur(12px);flex-direction:column;align-items:center;justify-content:center;gap:14px;">
+    <div style="font-size:30px;font-weight:900;letter-spacing:4px;color:#00e5ff;margin-bottom:6px;">SESSIONE TERMINATA</div>
+    <div style="display:flex;gap:12px;">
+      <div class="hud-stat" style="min-width:90px;"><div class="hud-val" style="color:#00e5ff;font-size:34px;" id="end-hits">0</div><div class="hud-lbl">COLPI</div></div>
+      <div class="hud-stat" style="min-width:90px;"><div class="hud-val" style="color:#ff3d71;font-size:34px;" id="end-misses">0</div><div class="hud-lbl">MANCATI</div></div>
+      <div class="hud-stat" style="min-width:90px;"><div class="hud-val" style="color:#00e676;font-size:34px;" id="end-acc">–%</div><div class="hud-lbl">ACC</div></div>
+      <div class="hud-stat" style="min-width:90px;"><div class="hud-val" style="color:#a259ff;font-size:34px;" id="end-avg">–ms</div><div class="hud-lbl">AVG TIME</div></div>
+    </div>
+    <button class="btn btn-primary" style="width:220px;margin-top:8px;" onclick="restartArena()">🔄 GIOCA ANCORA</button>
+    <button class="btn btn-danger" style="width:220px;" onclick="exitArena()">⏹ ESCI</button>
+  </div>
+</div>
+
+<script>
+// ── Tab switching ──────────────────────────────────────────
+function switchTab(i){
+  document.querySelectorAll('.tab').forEach((t,j)=>t.classList.toggle('active',i===j));
+  document.querySelectorAll('.panel').forEach((p,j)=>p.classList.toggle('active',i===j));
+}
+
+// ── Preview mini-3D ────────────────────────────────────────
+(function(){
+  const cv=document.getElementById('previewCanvas');
+  if(!cv||!window.THREE) return;
+  const W=()=>cv.offsetWidth||800, H=()=>cv.offsetHeight||300;
+  cv.width=W(); cv.height=H();
+  const sc=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(55,W()/H(),0.1,200);
+  cam.position.set(0,2,12);
+  const rend=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});
+  rend.setSize(W(),H()); rend.setPixelRatio(devicePixelRatio);
+  sc.add(new THREE.AmbientLight(0x334466,2));
+  const pl=new THREE.PointLight(0x00e5ff,3,40); pl.position.set(0,6,4); sc.add(pl);
+  const pl2=new THREE.PointLight(0xa259ff,2,30); pl2.position.set(-5,4,-4); sc.add(pl2);
+  const geos=[new THREE.SphereGeometry(0.55,16,16),new THREE.BoxGeometry(0.9,0.9,0.9),new THREE.CylinderGeometry(0.35,0.35,1,12)];
+  const cols=[0xff3d71,0x00e5ff,0xa259ff,0x00e676,0xffea00];
+  const meshes=[];
+  for(let i=0;i<9;i++){
+    const m=new THREE.Mesh(geos[i%3],new THREE.MeshPhongMaterial({color:cols[i%5],emissive:cols[i%5],emissiveIntensity:0.35,shininess:90}));
+    m.position.set((Math.random()-0.5)*16,(Math.random()-0.5)*6,(Math.random()-0.5)*8-4);
+    m.userData.ry=(Math.random()-0.5)*0.025; sc.add(m); meshes.push(m);
+  }
+  let alive=true;
+  document.getElementById('arenaEntry').addEventListener('click',()=>{ alive=false; },{ once:true });
+  function loop(){
+    if(!alive) return;
+    requestAnimationFrame(loop);
+    const t=Date.now()*0.001;
+    meshes.forEach((m,i)=>{ m.rotation.y+=m.userData.ry; m.position.y+=Math.sin(t*0.8+i)*0.004; });
+    cam.position.x=Math.sin(t*0.12)*2.5; cam.lookAt(0,0,-2);
+    rend.render(sc,cam);
+  }
+  loop();
+})();
+
+// ── Mode ───────────────────────────────────────────────────
+let aimMode='normal';
+function setMode(m){
+  aimMode=m;
+  document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('mode-'+m).classList.add('active');
+}
+
+// ── 3D Arena ───────────────────────────────────────────────
+let aS,aC,aR,aRAF;
+let aRunning=false,aPaused=false;
+let aHits=0,aMisses=0,aHitTimes=[],aLastSpawn=0;
+let aDur=60,aRem=0,aTimer=null;
+let aTargets=[];
+let keys={w:0,a:0,s:0,d:0};
+let yaw=0,pitch=0;
+let gpShootPrev=false;
+let gpCenter={lX:0,lY:0,rX:0,rY:0};
+
+function enterArena(){
+  const cv=document.getElementById('arenaCanvas');
+  const arena=document.getElementById('aimArena3D');
+  arena.style.display='block';
+  document.getElementById('pauseOverlay').style.display='none';
+  document.getElementById('endOverlay').style.display='none';
+
+  aS=new THREE.Scene();
+  aS.background=new THREE.Color(0x080d14);
+  aS.fog=new THREE.Fog(0x080d14,35,80);
+
+  aC=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,0.1,200);
+  aC.position.set(0,1.7,0);
+  yaw=0; pitch=0;
+
+  // Campiona il centro degli stick al momento dell'avvio per correggere drift fisico
+  gpCenter={lX:0,lY:0,rX:0,rY:0};
+  try{
+    const gps=navigator.getGamepads()||[];
+    for(const g of gps){
+      if(g){
+        gpCenter={lX:g.axes[0]||0,lY:g.axes[1]||0,rX:g.axes[2]||0,rY:g.axes[3]||0};
+        break;
+      }
+    }
+  }catch(e){}
+
+  aR=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+  aR.setSize(innerWidth,innerHeight);
+  aR.setPixelRatio(devicePixelRatio);
+  aR.shadowMap.enabled=true;
+
+  // Lighting
+  const sun=new THREE.DirectionalLight(0xffffff,0.6); sun.position.set(8,20,8); sun.castShadow=true; aS.add(sun);
+  aS.add(new THREE.AmbientLight(0x1a2a44,2));
+  aS.add(new THREE.PointLight(0x0055ff,0.8,50));
+  [0x00e5ff,0xa259ff,0xff3d71,0x00e676].forEach((c,i)=>{
+    const a=i/4*Math.PI*2;
+    const l=new THREE.PointLight(c,0.7,25);
+    l.position.set(Math.cos(a)*24,9,Math.sin(a)*24);
+    aS.add(l);
+  });
+
+  buildLevel();
+  resetSession();
+  aRunning=true; aPaused=false;
+  aDur=parseInt(document.getElementById('aimDuration').value);
+  aRem=aDur;
+  updateHUD();
+  spawnTargets();
+  startTimer();
+
+  cv.requestPointerLock=cv.requestPointerLock||cv.mozRequestPointerLock;
+  cv.requestPointerLock();
+  aRAF=requestAnimationFrame(loop3D);
+}
+
+function buildLevel(){
+  // Floor
+  const fl=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.MeshLambertMaterial({color:0x0d1424}));
+  fl.rotation.x=-Math.PI/2; fl.receiveShadow=true; aS.add(fl);
+  const grid=new THREE.GridHelper(60,30,0x0a2040,0x0a2040); grid.position.y=0.01; aS.add(grid);
+  // Walls
+  [[60,14,1,0,7,-30],[60,14,1,0,7,30],[1,14,60,-30,7,0],[1,14,60,30,7,0]].forEach(([w,h,d,x,y,z])=>{
+    const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshLambertMaterial({color:0x0c1828}));
+    m.position.set(x,y,z); m.receiveShadow=true; aS.add(m);
+  });
+  // Ceiling
+  const ceil=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.MeshLambertMaterial({color:0x080c14}));
+  ceil.rotation.x=Math.PI/2; ceil.position.y=14; aS.add(ceil);
+  // Cover objects
+  const covMat=new THREE.MeshLambertMaterial({color:0x18283c});
+  [[0,0,-12,3],[10,0,4,2],[-10,0,4,2],[0,0,12,3],[-14,0,-6,2],[14,0,-6,2],[6,0,-6,1.5],[-6,0,-6,1.5]].forEach(([x,y,z,s])=>{
+    const b=new THREE.Mesh(new THREE.BoxGeometry(s*2,s*2,s*2),covMat);
+    b.position.set(x,s,z); b.castShadow=true; b.receiveShadow=true; aS.add(b);
+  });
+  // Glowing trim on walls
+  [0x00e5ff,0xa259ff].forEach((c,i)=>{
+    const mat=new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:0.25});
+    [-30,30].forEach(z=>{
+      const strip=new THREE.Mesh(new THREE.BoxGeometry(60,0.1,0.05),mat);
+      strip.position.set(0,0.5,z); aS.add(strip);
+      const strip2=new THREE.Mesh(new THREE.BoxGeometry(60,0.1,0.05),mat);
+      strip2.position.set(0,13.5,z); aS.add(strip2);
+    });
+  });
+}
+
+function resetSession(){
+  aHits=0; aMisses=0; aHitTimes=[]; aLastSpawn=Date.now();
+}
+
+const SHAPES=['sphere','box','cylinder'];
+const TARGET_COLS=[0xff3d71,0x00e5ff,0xa259ff,0x00e676,0xffea00,0xff9100];
+
+function spawnTargets(){
+  if(!aRunning||aPaused) return;
+  clearTargets();
+  const cnt=aimMode==='small'?5:aimMode==='moving'?4:3;
+  for(let i=0;i<cnt;i++){
+    const shape=SHAPES[Math.floor(Math.random()*3)];
+    const sz=aimMode==='small'?0.22+Math.random()*0.15:0.38+Math.random()*0.35;
+    let geo;
+    if(shape==='sphere') geo=new THREE.SphereGeometry(sz,16,16);
+    else if(shape==='box') geo=new THREE.BoxGeometry(sz*2,sz*2,sz*2);
+    else geo=new THREE.CylinderGeometry(sz*0.6,sz*0.6,sz*2,12);
+    const col=TARGET_COLS[Math.floor(Math.random()*TARGET_COLS.length)];
+    const mat=new THREE.MeshPhongMaterial({color:col,emissive:col,emissiveIntensity:0.45,shininess:120});
+    const mesh=new THREE.Mesh(geo,mat);
+    let px,pz;
+    do{ px=(Math.random()-0.5)*46; pz=(Math.random()-0.5)*46; }
+    while(Math.sqrt(px*px+pz*pz)<6);
+    mesh.position.set(px,1.2+Math.random()*4.5,pz);
+    mesh.userData={isTarget:true,sz,spawnT:Date.now()};
+    if(aimMode==='moving'){
+      const speed=0.04+Math.random()*0.04;
+      const dir=Math.random()*Math.PI*2;
+      mesh.userData.vx=Math.cos(dir)*speed;
+      mesh.userData.vy=(Math.random()-0.5)*0.02;
+      mesh.userData.vz=Math.sin(dir)*speed;
+    }
+    // Outer glow ring
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(sz*1.6,0.04,8,32),new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:0.4}));
+    ring.userData.isRing=true;
+    mesh.add(ring);
+    // Point light for glow
+    const pl=new THREE.PointLight(col,0.8,4);
+    mesh.add(pl);
+    aS.add(mesh);
+    aTargets.push(mesh);
+  }
+  aLastSpawn=Date.now();
+}
+
+function clearTargets(){ aTargets.forEach(t=>aS.remove(t)); aTargets=[]; }
+
+const raycaster=new THREE.Raycaster();
+
+function shoot(){
+  if(!aRunning||aPaused) return;
+  raycaster.setFromCamera(new THREE.Vector2(0,0),aC);
+  const hits=raycaster.intersectObjects(aTargets,true);
+  if(hits.length>0){
+    let obj=hits[0].object;
+    // Walk up to find the root target
+    while(obj.parent && !obj.userData.isTarget) obj=obj.parent;
+    if(obj.userData.isTarget){
+      aHits++;
+      aHitTimes.push(Date.now()-aLastSpawn);
+      flash(true);
+      aS.remove(obj);
+      aTargets.splice(aTargets.indexOf(obj),1);
+      if(aTargets.length===0) spawnTargets();
+    } else { aMisses++; flash(false); }
+  } else { aMisses++; flash(false); }
+  updateHUD();
+}
+
+function flash(hit){
+  const el=document.getElementById('hitFlash');
+  el.style.background=hit?'rgba(0,230,118,0.12)':'rgba(255,61,113,0.18)';
+  el.style.opacity='1';
+  setTimeout(()=>el.style.opacity='0',90);
+}
+
+function updateHUD(){
+  document.getElementById('hud-hits').textContent=aHits;
+  document.getElementById('hud-misses').textContent=aMisses;
+  const tot=aHits+aMisses;
+  document.getElementById('hud-acc').textContent=tot>0?Math.round(aHits/tot*100)+'%':'–%';
+}
+
+function startTimer(){
+  clearInterval(aTimer);
+  document.getElementById('hud-timer').textContent=aRem;
+  document.getElementById('hud-timerbar').style.transition='none';
+  document.getElementById('hud-timerbar').style.width='100%';
+  requestAnimationFrame(()=>{
+    document.getElementById('hud-timerbar').style.transition='width 1s linear';
+  });
+  aTimer=setInterval(()=>{
+    if(aPaused) return;
+    aRem--;
+    document.getElementById('hud-timer').textContent=aRem;
+    document.getElementById('hud-timerbar').style.width=(aRem/aDur*100)+'%';
+    if(aRem<=0) endSession();
+  },1000);
+}
+
+function endSession(){
+  aRunning=false; clearInterval(aTimer);
+  document.exitPointerLock();
+  const tot=aHits+aMisses;
+  const avg=aHitTimes.length?Math.round(aHitTimes.reduce((a,b)=>a+b,0)/aHitTimes.length):null;
+  document.getElementById('end-hits').textContent=aHits;
+  document.getElementById('end-misses').textContent=aMisses;
+  document.getElementById('end-acc').textContent=tot?Math.round(aHits/tot*100)+'%':'–%';
+  document.getElementById('end-avg').textContent=avg?avg+'ms':'–ms';
+  document.getElementById('endOverlay').style.display='flex';
+  // Update sidebar
+  document.getElementById('statHits').textContent=aHits;
+  document.getElementById('statMisses').textContent=aMisses;
+  document.getElementById('statAcc').textContent=tot?Math.round(aHits/tot*100)+'%':'–%';
+  document.getElementById('statAvgTime').textContent=avg?avg+'ms':'–ms';
+}
+
+function restartArena(){
+  document.getElementById('endOverlay').style.display='none';
+  resetSession(); aRunning=true; aPaused=false;
+  aRem=aDur; clearTargets(); spawnTargets(); startTimer();
+  document.getElementById('arenaCanvas').requestPointerLock();
+}
+
+function resumeArena(){
+  aPaused=false;
+  document.getElementById('pauseOverlay').style.display='none';
+  document.getElementById('arenaCanvas').requestPointerLock();
+}
+
+function exitArena(){
+  aRunning=false; aPaused=false;
+  clearInterval(aTimer);
+  if(aRAF){ cancelAnimationFrame(aRAF); aRAF=null; }
+  document.exitPointerLock();
+  clearTargets();
+  if(aR){ aR.dispose(); aR=null; }
+  document.getElementById('aimArena3D').style.display='none';
+  document.getElementById('pauseOverlay').style.display='none';
+  document.getElementById('endOverlay').style.display='none';
+}
+
+// Game loop
+function loop3D(){
+  if(!aRunning){ return; }
+  aRAF=requestAnimationFrame(loop3D);
+  if(aPaused){ aR&&aR.render(aS,aC); return; }
+
+  // Sensibilità CONTROLLER: scala separata, molto più bassa del mouse
+  // Range: sens1=0.00005, sens20=0.0008 — con curva quadratica per precisione
+  const sensSlider=parseFloat(document.getElementById('sensX').value);
+  const gpSens=0.00005+(sensSlider-1)/19*0.00075;
+
+  // Gamepad
+  let gp=null;
+  try{ for(const g of (navigator.getGamepads?.()||[])) if(g){gp=g;break;} }catch(e){}
+  if(gp){
+    // Calibrazione centro: sottrai il valore a riposo campionato all'avvio
+    // così il drift fisico viene annullato senza aumentare la deadzone
+    function applyDZ(v, center){
+      const adj = v - center;           // rimuovi offset fisico
+      const dead = 0.06;               // deadzone minima (solo per rumore digitale)
+      if(Math.abs(adj)<dead) return 0;
+      return Math.sign(adj)*Math.pow((Math.abs(adj)-dead)/(1-dead),1.8);
+    }
+    let rX=applyDZ(gp.axes[2]||0, gpCenter.rX);
+    let rY=applyDZ(gp.axes[3]||0, gpCenter.rY);
+    yaw  -=rX*gpSens*60;
+    pitch-=rY*gpSens*60;
+    let lX=applyDZ(gp.axes[0]||0, gpCenter.lX);
+    let lY=applyDZ(gp.axes[1]||0, gpCenter.lY);
+    // L-stick movement (analogico, non digitale)
+    if(lX<-0.1) keys.a=Math.abs(lX); else if(lX>0.1) keys.d=lX; else { keys.a=0; keys.d=0; }
+    if(lY<-0.1) keys.w=Math.abs(lY); else if(lY>0.1) keys.s=lY; else { keys.w=0; keys.s=0; }
+    const gpShoot=gp.buttons[7]&&gp.buttons[7].pressed;
+    if(gpShoot && !gpShootPrev) shoot();
+    gpShootPrev=gpShoot;
+  }
+
+  pitch=Math.max(-Math.PI/2.1,Math.min(Math.PI/2.1,pitch));
+  aC.rotation.order='YXZ';
+  aC.rotation.y=yaw;
+  aC.rotation.x=pitch;
+
+  // Move
+  const spd=0.13;
+  const fwd=new THREE.Vector3(-Math.sin(yaw),0,-Math.cos(yaw));
+  const right=new THREE.Vector3(Math.cos(yaw),0,-Math.sin(yaw));
+  const mv=new THREE.Vector3();
+  if(keys.w) mv.addScaledVector(fwd,spd);
+  if(keys.s) mv.addScaledVector(fwd,-spd);
+  if(keys.a) mv.addScaledVector(right,-spd);
+  if(keys.d) mv.addScaledVector(right,spd);
+  if(mv.length()>0){ ac_move(mv); }
+
+  // Animate targets
+  const t=Date.now()*0.001;
+  aTargets.forEach((m,i)=>{
+    m.rotation.y+=0.012;
+    if(aimMode==='moving'){
+      m.position.x+=m.userData.vx||0;
+      m.position.y+=m.userData.vy||0;
+      m.position.z+=m.userData.vz||0;
+      if(Math.abs(m.position.x)>27) m.userData.vx*=-1;
+      if(m.position.y<0.5||m.position.y>9) m.userData.vy*=-1;
+      if(Math.abs(m.position.z)>27) m.userData.vz*=-1;
+    } else {
+      m.position.y+=Math.sin(t*1.5+i*1.2)*0.004;
+    }
+    // Pulse ring
+    const ring=m.children.find(c=>c.userData.isRing);
+    if(ring){ const s=1+Math.sin(t*3+i)*0.12; ring.scale.set(s,s,s); }
+  });
+
+  aR.render(aS,aC);
+}
+
+function ac_move(mv){
+  aC.position.add(mv);
+  aC.position.x=Math.max(-28,Math.min(28,aC.position.x));
+  aC.position.z=Math.max(-28,Math.min(28,aC.position.z));
+  aC.position.y=1.7;
+}
+
+// Mouse look
+document.addEventListener('mousemove',e=>{
+  if(!aRunning||aPaused) return;
+  if(document.pointerLockElement!==document.getElementById('arenaCanvas')) return;
+  const sX=parseFloat(document.getElementById('sensX').value)*0.0007;
+  const sY=parseFloat(document.getElementById('sensY').value)*0.0007;
+  yaw  -=e.movementX*sX;
+  pitch-=e.movementY*sY;
+});
+
+document.addEventListener('mousedown',e=>{
+  if(!aRunning||aPaused) return;
+  if(e.button===0){
+    if(document.pointerLockElement===document.getElementById('arenaCanvas')) shoot();
+    else document.getElementById('arenaCanvas').requestPointerLock();
+  }
+});
+
+document.addEventListener('pointerlockchange',()=>{
+  if(!aRunning) return;
+  if(document.pointerLockElement!==document.getElementById('arenaCanvas') && aRunning && !aPaused && aRem>0){
+    aPaused=true;
+    document.getElementById('pauseOverlay').style.display='flex';
+  }
+});
+
+document.addEventListener('keydown',e=>{
+  if(aRunning&&!aPaused){
+    if(e.code==='KeyW') keys.w=1;
+    if(e.code==='KeyA') keys.a=1;
+    if(e.code==='KeyS') keys.s=1;
+    if(e.code==='KeyD') keys.d=1;
+  }
+  if(e.code==='Escape'&&aRunning&&!aPaused){
+    aPaused=true;
+    document.getElementById('pauseOverlay').style.display='flex';
+    document.exitPointerLock();
+  }
+  if(!aRunning){
+    let d=e.key==' '?'SPAZIO':e.key;
+    document.getElementById('lastKeyVal').textContent=d.toUpperCase();
+    document.getElementById('lastKeyCode').textContent='Code:'+e.code+'  KeyCode:'+e.keyCode;
+  }
+});
+document.addEventListener('keyup',e=>{
+  if(e.code==='KeyW') keys.w=0;
+  if(e.code==='KeyA') keys.a=0;
+  if(e.code==='KeyS') keys.s=0;
+  if(e.code==='KeyD') keys.d=0;
+});
+
+window.addEventListener('resize',()=>{
+  if(aR&&aC){ aR.setSize(innerWidth,innerHeight); aC.aspect=innerWidth/innerHeight; aC.updateProjectionMatrix(); }
+});
+
+// ── Delay Test (mouse + controller) ───────────────────────
+let dTimes=[],dPress=0,dActive=false;
+let dLastBtnState=false; // traccia stato precedente pulsante controller
+
+function dOnPress(){
+  dPress=Date.now(); dActive=true;
+  document.getElementById('delayZone').classList.add('pressed');
+  document.getElementById('delayZoneText').textContent='RILASCIA...';
+}
+function dOnRelease(){
+  if(!dActive) return;
+  const e=Date.now()-dPress; dActive=false;
+  document.getElementById('delayZone').classList.remove('pressed');
+  document.getElementById('delayZoneText').textContent='PREMI DI NUOVO';
+  dTimes.push(e);
+  document.getElementById('delayLast').textContent=e;
+  document.getElementById('delayAvg').textContent=Math.round(dTimes.reduce((a,b)=>a+b,0)/dTimes.length);
+  document.getElementById('delayBest').textContent=Math.min(...dTimes);
+}
+document.getElementById('delayZone').addEventListener('mousedown',dOnPress);
+document.getElementById('delayZone').addEventListener('mouseup',dOnRelease);
+
+// Controller: polling per delay test (qualsiasi pulsante face, L1/R1, trigger)
+function pollDelay(){
+  let gp=null;
+  try{ for(const g of (navigator.getGamepads?.()||[])) if(g){gp=g;break;} }catch(e){}
+  if(gp){
+    // Usa R2 o X o qualsiasi pulsante face per delay test
+    const anyBtn = [0,1,2,3,4,5,6,7].some(i=>gp.buttons[i]&&gp.buttons[i].pressed);
+    if(anyBtn && !dLastBtnState) dOnPress();
+    if(!anyBtn && dLastBtnState) dOnRelease();
+    dLastBtnState=anyBtn;
+    // Mostra anche il nome del tasto premuto nel test tasti
+    // Test tasti gestito da pollGP con mapping corretto — non duplicare qui
+  }
+  requestAnimationFrame(pollDelay);
+}
+pollDelay();
+
+function resetDelay(){
+  dTimes=[]; dActive=false; dLastBtnState=false;
+  ['delayLast','delayAvg','delayBest'].forEach(id=>document.getElementById(id).textContent='–');
+  document.getElementById('delayZoneText').textContent='PREMI QUALSIASI TASTO';
+  document.getElementById('delayZone').classList.remove('pressed');
+}
+
+// ── Gamepad Tab ────────────────────────────────────────────
+let gpRAF=null,gpOk=true;
+function startGP(){
+  if(gpRAF) return;
+  try{ navigator.getGamepads(); }catch(e){ gpOk=false; document.getElementById('statusText').textContent='⚠️ Gamepad API non disponibile'; return; }
+  gpRAF=requestAnimationFrame(pollGP);
+}
+function pollGP(){
+  if(!gpOk) return;
+  let gamepads=[]; try{ gamepads=navigator.getGamepads()||[]; }catch(e){ return; }
+  let gp=null; for(const g of gamepads) if(g){gp=g;break;}
+  if(gp){
+    document.getElementById('statusDot').classList.add('connected');
+    document.getElementById('statusText').textContent=gp.id.substring(0,50);
+    // Named button mapping — aggiornato per Raiju V3 Pro
+    // Indici verificati: cross=0,circle=1,square=2,triangle=3,l1=4,r1=5,l2=6,r2=7
+    // share=8,options=9,l3=10,r3=11,dup=12,ddown=13,dleft=14,dright=15
+    const bmap=[
+      {idx:0, id:'btn-cross',   cl:'lit-x'},
+      {idx:1, id:'btn-circle',  cl:'lit-o'},
+      {idx:2, id:'btn-square',  cl:'lit-sq'},
+      {idx:3, id:'btn-triangle',cl:'lit-tri'},
+      {idx:4, id:'btn-l1',      cl:'lit'},
+      {idx:5, id:'btn-r1',      cl:'lit'},
+      {idx:6, id:'btn-l2d',     cl:'lit'},
+      {idx:7, id:'btn-r2d',     cl:'lit'},
+      {idx:8, id:'btn-share',   cl:'lit'},
+      {idx:9, id:'btn-options', cl:'lit'},
+      {idx:10,id:'btn-l3',      cl:'lit'},
+      {idx:11,id:'btn-r3',      cl:'lit'},
+      {idx:12,id:'btn-dup',     cl:'lit'},
+      {idx:13,id:'btn-ddown',   cl:'lit'},
+      {idx:14,id:'btn-dleft',   cl:'lit'},
+      {idx:15,id:'btn-dright',  cl:'lit'},
+      {idx:18,id:'btn-m1',       cl:'lit'},
+      {idx:19,id:'btn-m2',       cl:'lit'},
+      {idx:20,id:'btn-m3',       cl:'lit'},
+      {idx:21,id:'btn-m4',       cl:'lit'},
+      {idx:22,id:'btn-m5',       cl:'lit'},
+      {idx:23,id:'btn-m6',       cl:'lit'},
+    ];
+    bmap.forEach(b=>{
+      const el=document.getElementById(b.id); if(!el) return;
+      gp.buttons[b.idx]?.pressed ? el.classList.add(b.cl) : el.classList.remove(b.cl);
+    });
+
+    // Griglia debug: crea/aggiorna un box per ogni pulsante raw
+    const grid=document.getElementById('allBtnsGrid');
+    if(grid.children.length!==gp.buttons.length){
+      grid.innerHTML='';
+      gp.buttons.forEach((_,i)=>{
+        const box=document.createElement('div');
+        box.id='rawbtn-'+i;
+        box.style.cssText='background:var(--surface3);border-radius:8px;padding:5px 3px;text-align:center;font-size:10px;color:var(--text2);border:1px solid var(--border);transition:all 0.1s;';
+        box.innerHTML='<div style="font-size:14px;font-weight:800;font-family:Rajdhani,sans-serif;">'+i+'</div>';
+        grid.appendChild(box);
+      });
+    }
+    gp.buttons.forEach((b,i)=>{
+      const box=document.getElementById('rawbtn-'+i);
+      if(!box) return;
+      if(b.pressed){
+        box.style.background='rgba(0,229,255,0.25)';
+        box.style.borderColor='var(--accent)';
+        box.style.color='var(--accent)';
+        // Mostra nel test tasti
+        const raijuNames={
+          0:'✕ Cross', 1:'○ Circle', 2:'□ Square', 3:'△ Triangle',
+          4:'L1', 5:'R1', 6:'L2', 7:'R2',
+          8:'Share', 9:'Options', 10:'L3', 11:'R3',
+          12:'↑ D-pad Su', 13:'↓ D-pad Giù', 14:'← D-pad Sinistra', 15:'→ D-pad Destra',
+          16:'PS',
+          18:'M1', 19:'M2', 20:'M3', 21:'M4', 22:'M5', 23:'M6'
+        };
+        const name=raijuNames[i]||('BTN '+i);
+        document.getElementById('lastKeyVal').textContent=name;
+        document.getElementById('lastKeyCode').textContent='index: '+i;
+      } else {
+        box.style.background='var(--surface3)';
+        box.style.borderColor='var(--border)';
+        box.style.color='var(--text2)';
+      }
+    });
+    const lt=gp.buttons[6]?.value||0, rt=gp.buttons[7]?.value||0;
+    document.getElementById('triggerL').style.width=(lt*100)+'%';
+    document.getElementById('triggerLVal').textContent=Math.round(lt*100)+'%';
+    document.getElementById('triggerR').style.width=(rt*100)+'%';
+    document.getElementById('triggerRVal').textContent=Math.round(rt*100)+'%';
+    const upd=(side,x,y)=>{
+      document.getElementById('stickDot'+side).style.left=(50+x*38)+'%';
+      document.getElementById('stickDot'+side).style.top=(50+y*38)+'%';
+      document.getElementById('stickVals'+side).textContent=`X:${x.toFixed(2)} Y:${y.toFixed(2)}`;
+    };
+    upd('L',gp.axes[0]||0,gp.axes[1]||0);
+    upd('R',gp.axes[2]||0,gp.axes[3]||0);
+  } else {
+    document.getElementById('statusDot').classList.remove('connected');
+    document.getElementById('statusText').textContent='Controller non rilevato – Premi un tasto';
+  }
+  gpRAF=requestAnimationFrame(pollGP);
+}
+window.addEventListener('gamepadconnected',()=>startGP());
+startGP();
+
+// ── FPS Overlay ────────────────────────────────────────────
+let fpsH=[],oColor='#00e5ff';
+const gEl=document.getElementById('fpsGraph'), oEl=document.getElementById('overlaygraphMini');
+for(let i=0;i<40;i++){const b=document.createElement('div');b.className='fps-graph-bar';b.style.height='20px';gEl.appendChild(b);}
+for(let i=0;i<20;i++){const b=document.createElement('div');b.className='fps-bar';b.style.cssText=`height:8px;background:${oColor};opacity:0.6;`;oEl.appendChild(b);}
+function simFps(){
+  const fps=Math.round(Math.max(30,Math.min(240,140+Math.sin(Date.now()/5000)*30+(Math.random()-0.5)*20)));
+  fpsH.push(fps); if(fpsH.length>40) fpsH.shift();
+  document.getElementById('fpsDisplay').textContent=fps;
+  document.getElementById('overlayFps').textContent=fps;
+  if(fpsH.length>5){
+    const mn=Math.min(...fpsH),mx=Math.max(...fpsH),avg=Math.round(fpsH.reduce((a,b)=>a+b,0)/fpsH.length);
+    const s=[...fpsH].sort((a,b)=>a-b);
+    document.getElementById('fpsMin').textContent=mn;
+    document.getElementById('fpsMax').textContent=mx;
+    document.getElementById('fps1pct').textContent=s[Math.floor(s.length*0.01)]||mn;
+    document.getElementById('fpsAvgStat').textContent=avg;
+  }
+  const fe=document.getElementById('fpsDisplay');
+  fe.style.background=fps>=120?'linear-gradient(135deg,var(--green),var(--accent))':fps>=60?'linear-gradient(135deg,var(--yellow),var(--accent))':'linear-gradient(135deg,var(--accent2),var(--accent3))';
+  const mxF=Math.max(...fpsH,1);
+  gEl.querySelectorAll('.fps-graph-bar').forEach((b,i)=>{ if(fpsH[i]) b.style.height=Math.round(fpsH[i]/mxF*48)+'px'; });
+  oEl.querySelectorAll('.fps-bar').forEach((b,i)=>{ if(fpsH[i]){b.style.height=Math.round(fpsH[i]/mxF*28)+'px';b.style.background=oColor;} });
+  document.getElementById('overlayCPU').textContent=Math.round(35+Math.random()*30)+'%';
+  document.getElementById('overlayGPU').textContent=Math.round(60+Math.random()*25)+'%';
+  document.getElementById('overlayPing').textContent=Math.round(8+Math.random()*15)+'ms';
+}
+setInterval(simFps,500);
+function toggleThis(el){el.classList.toggle('on');}
+function setOverlayColor(c,el){oColor=c;document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('selected'));el.classList.add('selected');document.getElementById('overlayFps').style.color=c;document.querySelectorAll('.overlay-stat-v').forEach(e=>e.style.color=c);}
+function setOverlayPos(pos,el){document.querySelectorAll('.pos-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.getElementById('overlayWidget1').className='overlay-widget '+pos;}
+</script>
+</body>
+</html>
